@@ -1,0 +1,90 @@
+var data = [
+  {name: "Mark Zuckerberg", content:"This is a Nice App!"},
+  {name: "Jordan Walke", content:"I'll grade this 80++."},
+  {name: "Thomas Mak", content:"Can't agree more!!"}
+];
+
+var CommentApp = React.createClass({
+  loadDataFromVar: function(){
+      this.setState({data: data});
+  },
+  handleCommentSubmit: function(comment){
+      this.props.data.push(comment);
+      console.log(this.props.data);
+  },
+  getInitialState: function(){
+      return{data: []};
+  },
+  componentDidMount: function(){
+      this.loadDataFromVar();
+      setInterval(this.loadDataFromVar, this.props.pollInterval);
+  },
+  render: function(){
+      return (
+          <div className="commentApp">
+              <h1>Simple Comment App</h1>
+            <AddCommentForm onCommentSubmit={this.handleCommentSubmit} />
+              <CommentList data={this.props.data} />
+          </div>
+      )
+  }
+});
+
+var CommentList = React.createClass({
+  render: function(){
+      var commentNodes = this.props.data.map(function(comment) {
+          return(
+              <Comment name={comment.name} content={comment.content} />
+          )
+      });
+      return (
+
+          <div className="commentList">
+          {commentNodes}
+          </div>
+      )
+
+  }
+});
+
+var AddCommentForm = React.createClass({
+  handleSubmit: function(e){
+      e.preventDefault();
+      var name = React.findDOMNode(this.refs.name).value.trim();
+      var content = React.findDOMNode(this.refs.content).value;
+
+      if(!name || !content){
+          return;
+      }
+      this.props.onCommentSubmit({name: name, content: content});
+      return;
+  },
+  render: function(){
+      return (
+          <form className="addCommentForm" onSubmit={this.handleSubmit}>
+              <input type="text" placeholder="Your Name" ref="name" />
+              <textarea placeholder="Comment here" ref="content" />
+             <button type="submit">Add Comment</button>
+          </form>
+      );
+  }
+});
+
+
+var Comment = React.createClass({
+  render: function(){
+      return(
+          <div className="comment">
+           
+          <img src ={"https://placehold.it/100/f8a035/ffffff&text="+this.props.name.substring(0,1)}/>
+          <div className="commentName">{this.props.name}:</div>
+          <p>{this.props.content}</p>
+          </div>
+      )
+  }
+});
+
+React.render(
+<CommentApp data={data} pollInterval={200} />,
+  document.getElementById('app')
+);
